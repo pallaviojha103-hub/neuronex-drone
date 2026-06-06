@@ -1,0 +1,246 @@
+/* ========================================
+   NeuroNex Design System
+   Cyberpunk / Neuromorphic Aesthetic
+   ======================================== */
+
+/* --- Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* --- Color Tokens --- */
+:root {
+  /* Background */
+  --bg-primary: #060a14;
+  --bg-secondary: #0a0e1a;
+  --bg-tertiary: #0f1525;
+  --bg-card: rgba(10, 14, 26, 0.85);
+  --bg-glass: rgba(15, 21, 37, 0.65);
+  --bg-glass-hover: rgba(15, 21, 37, 0.85);
+
+  /* Accent Colors */
+  --cyan: #00f0ff;
+  --cyan-dim: rgba(0, 240, 255, 0.3);
+  --cyan-glow: rgba(0, 240, 255, 0.15);
+  --neon-green: #39ff14;
+  --neon-green-dim: rgba(57, 255, 20, 0.3);
+  --neon-green-glow: rgba(57, 255, 20, 0.15);
+  --magenta: #ff00ff;
+  --magenta-dim: rgba(255, 0, 255, 0.3);
+  --amber: #ffaa00;
+  --amber-dim: rgba(255, 170, 0, 0.3);
+  --danger: #ff3366;
+  --danger-dim: rgba(255, 51, 102, 0.3);
+
+  /* Text */
+  --text-primary: #e8edf5;
+  --text-secondary: #8892a4;
+  --text-muted: #4a5568;
+  --text-accent: var(--cyan);
+
+  /* Borders */
+  --border-subtle: rgba(0, 240, 255, 0.08);
+  --border-default: rgba(0, 240, 255, 0.15);
+  --border-active: rgba(0, 240, 255, 0.4);
+
+  /* Gradients */
+  --gradient-bg: linear-gradient(135deg, #060a14 0%, #0a0e1a 50%, #0f1525 100%);
+  --gradient-cyan: linear-gradient(135deg, #00f0ff 0%, #0088ff 100%);
+  --gradient-green: linear-gradient(135deg, #39ff14 0%, #00cc88 100%);
+  --gradient-danger: linear-gradient(135deg, #ff3366 0%, #ff0066 100%);
+  --gradient-card: linear-gradient(135deg, rgba(0, 240, 255, 0.03) 0%, rgba(57, 255, 20, 0.02) 100%);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-cyan: 0 0 20px rgba(0, 240, 255, 0.15);
+  --shadow-green: 0 0 20px rgba(57, 255, 20, 0.15);
+
+  /* Typography */
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  /* Z-index */
+  --z-base: 1;
+  --z-overlay: 10;
+  --z-hud: 20;
+  --z-modal: 100;
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* --- Typography --- */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1rem; }
+h4 { font-size: 0.85rem; }
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* --- Glassmorphism --- */
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+}
+
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-image: var(--gradient-card);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.glass-card:hover {
+  border-color: var(--border-active);
+  box-shadow: var(--shadow-cyan);
+}
+
+/* --- Animations --- */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes scanLine {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes borderGlow {
+  0%, 100% { border-color: var(--border-default); }
+  50% { border-color: var(--border-active); }
+}
+
+@keyframes numberCount {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dash {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes warningPulse {
+  0%, 100% { box-shadow: 0 0 5px var(--danger-dim); }
+  50% { box-shadow: 0 0 25px var(--danger-dim), 0 0 50px rgba(255, 51, 102, 0.1); }
+}
+
+@keyframes rotateGlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-pulse { animation: pulseGlow 2s ease-in-out infinite; }
+.animate-slide-up { animation: slideUp 0.5s ease forwards; }
+.animate-slide-in { animation: slideIn 0.4s ease forwards; }
+.animate-fade-in { animation: fadeIn 0.6s ease forwards; }
+.animate-border-glow { animation: borderGlow 3s ease-in-out infinite; }
+.animate-warning { animation: warningPulse 1.5s ease-in-out infinite; }
+
+/* --- Utility --- */
+.text-cyan { color: var(--cyan); }
+.text-green { color: var(--neon-green); }
+.text-amber { color: var(--amber); }
+.text-danger { color: var(--danger); }
+.text-magenta { color: var(--magenta); }
+.text-muted { color: var(--text-secondary); }
+
+.bg-cyan { background: var(--cyan); }
+.bg-green { background: var(--neon-green); }
+.bg-danger { background: var(--danger); }
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-active);
+}
+
+/* --- Selection --- */
+::selection {
+  background: var(--cyan-dim);
+  color: var(--text-primary);
+}

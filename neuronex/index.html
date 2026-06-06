@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroNex — Event-Driven Drone Collision Avoidance</title>
+  <meta name="description" content="A neuromorphic event-based vision simulation for drone collision avoidance. Demonstrates 90% energy reduction and 300x faster reaction times compared to traditional frame-based processing.">
+  <meta name="keywords" content="neuromorphic, event-based vision, DVS, drone, collision avoidance, spiking neural network">
+
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+</head>
+<body>
+  <!-- Background effects -->
+  <div class="app-bg"></div>
+  <div class="grid-overlay"></div>
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <div>
+        <h1>NeuroNex</h1>
+        <div class="tagline">Event-Driven Collision Avoidance</div>
+      </div>
+    </div>
+    <div class="header-status">
+      <div class="status-indicator">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">IDLE</span>
+      </div>
+      <div class="status-indicator">
+        <span class="text-muted">FPS</span>
+        <span class="text-cyan mono" id="hud-fps">60</span>
+      </div>
+      <div class="status-indicator">
+        <span class="text-muted">MODE</span>
+        <span class="text-green mono">NEUROMORPHIC</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- ========== SIMULATION VIEWPORT ========== -->
+    <section class="viewport-section" id="viewport">
+      <div class="viewport-container">
+
+        <!-- Event-Based Camera View -->
+        <div class="viewport-panel event-mode glass-card animate-slide-in" id="event-panel">
+          <div class="viewport-label event">⚡ Event-Based Vision (DVS)</div>
+          <canvas class="viewport-canvas" id="event-canvas"></canvas>
+          <div class="viewport-stats">
+            <div class="stat-badge text-cyan" id="stat-event-count">0 events</div>
+            <div class="stat-badge text-green" id="stat-event-latency">0.1ms</div>
+          </div>
+        </div>
+
+        <!-- Traditional Frame Camera View -->
+        <div class="viewport-panel frame-mode glass-card animate-slide-in" style="animation-delay: 0.1s" id="frame-panel">
+          <div class="viewport-label frame">📷 Traditional Frame (30fps)</div>
+          <canvas class="viewport-canvas" id="frame-canvas"></canvas>
+          <div class="viewport-stats">
+            <div class="stat-badge text-amber" id="stat-frame-pixels">0 px</div>
+            <div class="stat-badge text-danger" id="stat-frame-latency">33.3ms</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========== HUD BAR ========== -->
+    <div class="hud-bar" id="hud">
+      <div class="hud-item glass-card animate-slide-up" style="animation-delay: 0.15s">
+        <div class="hud-label">Speed</div>
+        <div class="hud-value" id="hud-speed">5<span class="hud-unit">m/s</span></div>
+      </div>
+      <div class="hud-item glass-card animate-slide-up" style="animation-delay: 0.2s">
+        <div class="hud-label">Altitude</div>
+        <div class="hud-value" id="hud-altitude">120<span class="hud-unit">m</span></div>
+      </div>
+      <div class="hud-item glass-card animate-slide-up" style="animation-delay: 0.25s">
+        <div class="hud-label">Heading</div>
+        <div class="hud-value" id="hud-heading">0°</div>
+      </div>
+      <div class="hud-item glass-card animate-slide-up" style="animation-delay: 0.3s">
+        <div class="hud-label">Threat Level</div>
+        <div class="hud-value" id="hud-threat">0%</div>
+        <div class="threat-level">
+          <div class="threat-bar">
+            <div class="threat-fill" id="threat-fill" style="width: 0%; background: #39ff14;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== CONTROLS ========== -->
+    <div class="controls-bar glass animate-slide-up" style="animation-delay: 0.35s" id="controls">
+      <button class="btn btn-primary" id="btn-start">▶ Start</button>
+      <button class="btn btn-danger" id="btn-reset">↺ Reset</button>
+
+      <div class="control-group">
+        <span class="control-label">Speed</span>
+        <input type="range" class="slider" id="slider-speed" min="1" max="10" value="5">
+        <span class="mono text-cyan" id="speed-value" style="font-size:0.8rem; min-width:20px;">5</span>
+      </div>
+
+      <div class="control-group">
+        <span class="control-label">Obstacles</span>
+        <input type="range" class="slider" id="slider-density" min="1" max="10" value="5">
+        <span class="mono text-cyan" id="density-value" style="font-size:0.8rem; min-width:20px;">5</span>
+      </div>
+    </div>
+
+    <!-- ========== EVENT SPIKE RAIL ========== -->
+    <div class="spike-rail glass-card animate-slide-up" style="animation-delay: 0.4s; margin-bottom: var(--space-xl);" id="spike-rail">
+      <canvas id="spike-canvas"></canvas>
+    </div>
+
+    <!-- ========== METRICS DASHBOARD ========== -->
+    <section class="dashboard-section animate-fade-in" style="animation-delay: 0.5s" id="dashboard">
+      <h2 class="section-title">Performance Metrics</h2>
+
+      <div class="metrics-grid">
+
+        <!-- Energy Savings -->
+        <div class="metric-card glass-card" id="card-energy">
+          <div class="metric-header">
+            <div class="metric-title">Energy Savings</div>
+            <div class="metric-icon" style="background: var(--neon-green-glow); color: var(--neon-green);">⚡</div>
+          </div>
+          <div class="metric-value text-green" id="metric-energy-value">~90%</div>
+          <div class="metric-comparison text-muted">Less processing vs. frame-based</div>
+          <div class="metric-bar-container">
+            <div class="metric-bar-label">
+              <span class="text-cyan">Event-Based</span>
+              <span class="text-cyan" id="metric-energy-event-val">0</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-bar-fill cyan" id="metric-energy-event-bar" style="width: 10%;"></div>
+            </div>
+            <div class="metric-bar-label">
+              <span class="text-amber">Frame-Based</span>
+              <span class="text-amber" id="metric-energy-frame-val">0</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-bar-fill amber" id="metric-energy-frame-bar" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Latency -->
+        <div class="metric-card glass-card" id="card-latency">
+          <div class="metric-header">
+            <div class="metric-title">Latency Speedup</div>
+            <div class="metric-icon" style="background: var(--cyan-glow); color: var(--cyan);">⏱</div>
+          </div>
+          <div class="metric-value text-cyan" id="metric-latency-value">~300x</div>
+          <div class="metric-comparison text-muted">Faster reaction time</div>
+          <div class="metric-bar-container">
+            <div class="metric-bar-label">
+              <span class="text-cyan">Event</span>
+              <span class="text-cyan" id="metric-latency-event-val">0.1ms</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-bar-fill green" id="metric-latency-event-bar" style="width: 1%;"></div>
+            </div>
+            <div class="metric-bar-label">
+              <span class="text-amber">Frame</span>
+              <span class="text-amber" id="metric-latency-frame-val">33ms</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-bar-fill danger" id="metric-latency-frame-bar" style="width: 80%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Collision Avoidance -->
+        <div class="metric-card glass-card" id="card-reactions">
+          <div class="metric-header">
+            <div class="metric-title">Avoidance Success</div>
+            <div class="metric-icon" style="background: rgba(0,240,255,0.1); color: var(--cyan);">🛡</div>
+          </div>
+          <div class="metric-value text-cyan" id="metric-reactions-value">100%</div>
+          <div class="metric-comparison text-muted">Event-based success rate</div>
+          <div class="metric-bar-container">
+            <div class="metric-bar-label">
+              <span class="text-cyan">Event Avoided</span>
+              <span class="text-cyan" id="metric-reactions-event-val">0</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-bar-fill cyan" id="metric-reactions-event-bar" style="width: 0%;"></div>
+            </div>
+            <div class="metric-bar-label">
+              <span class="text-amber">Frame Avoided</span>
+              <span class="text-amber" id="metric-reactions-frame-val">0</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-bar-fill amber" id="metric-reactions-frame-bar" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overall Efficiency -->
+        <div class="metric-card glass-card" id="card-efficiency">
+          <div class="metric-header">
+            <div class="metric-title">Overall Efficiency</div>
+            <div class="metric-icon" style="background: var(--neon-green-glow); color: var(--neon-green);">📊</div>
+          </div>
+          <div class="metric-value text-green" id="metric-efficiency-value">95%</div>
+          <div class="metric-comparison text-muted">Combined neuromorphic advantage</div>
+          <div class="metric-bar-container">
+            <div class="metric-bar-label">
+              <span class="text-green">Neuromorphic Score</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-bar-fill green" id="metric-efficiency-bar" style="width: 95%;"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========== COMPARISON TABLE ========== -->
+    <section class="comparison-section animate-fade-in" style="animation-delay: 0.6s" id="comparison">
+      <h2 class="section-title">Head-to-Head Comparison</h2>
+      <div class="glass-card" style="overflow-x: auto;">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>⚡ Event-Based (DVS)</th>
+              <th>📷 Frame-Based (Traditional)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Data per Frame</td>
+              <td class="highlight-good" id="table-data-event">— events/f</td>
+              <td class="highlight-bad" id="table-data-frame">— px/f</td>
+            </tr>
+            <tr>
+              <td>Processing Latency</td>
+              <td class="highlight-good" id="table-latency-event">~0.1 ms</td>
+              <td class="highlight-bad" id="table-latency-frame">~33 ms</td>
+            </tr>
+            <tr>
+              <td>Energy Consumption</td>
+              <td class="highlight-good" id="table-energy-event">— mW</td>
+              <td class="highlight-bad" id="table-energy-frame">— mW</td>
+            </tr>
+            <tr>
+              <td>Collisions</td>
+              <td class="highlight-good" id="table-collisions-event">0</td>
+              <td class="highlight-bad" id="table-collisions-frame">0</td>
+            </tr>
+            <tr>
+              <td>Obstacles Avoided</td>
+              <td class="highlight-good" id="table-avoided-event">0</td>
+              <td class="highlight-bad" id="table-avoided-frame">0</td>
+            </tr>
+            <tr>
+              <td>Reaction Time</td>
+              <td class="highlight-good" id="table-reaction-event">~0.1 ms</td>
+              <td class="highlight-bad" id="table-reaction-frame">~33 ms</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========== INFO PANEL ========== -->
+    <section class="info-section animate-fade-in" style="animation-delay: 0.7s" id="info">
+      <h2 class="section-title">How It Works</h2>
+      <div class="info-panel glass-card">
+        <h3>What is Event-Based Vision?</h3>
+        <p>
+          Traditional cameras capture <strong>entire frames</strong> at fixed intervals (30-60 fps), 
+          processing every single pixel regardless of whether it changed. This wastes enormous energy 
+          on static regions and creates inherent latency — you can only react as fast as your frame rate allows.
+        </p>
+        <p>
+          <strong>Event-based cameras</strong> (Dynamic Vision Sensors / DVS), inspired by the human retina, 
+          work fundamentally differently. Each pixel <em>independently</em> fires an "event" only when its 
+          brightness changes beyond a threshold. The result: microsecond-level temporal resolution, 
+          dramatically reduced data bandwidth, and energy consumption reduced by up to 90%.
+        </p>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <h4>⚡ Sparse Events</h4>
+            <p>Only motion edges generate data. Static background = zero processing cost.</p>
+          </div>
+          <div class="info-item">
+            <h4>⏱ Microsecond Latency</h4>
+            <p>Each pixel responds independently with sub-millisecond timestamps — no frame sync needed.</p>
+          </div>
+          <div class="info-item">
+            <h4>🔋 90% Less Energy</h4>
+            <p>Processing sparse events requires a fraction of the power of full-frame pipelines.</p>
+          </div>
+          <div class="info-item">
+            <h4>🛡 Real-Time Avoidance</h4>
+            <p>Instant obstacle detection via event clustering enables immediate avoidance maneuvers.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== PITCH SECTION ========== -->
+    <section class="info-section animate-fade-in" style="animation-delay: 0.8s" id="pitch">
+      <h2 class="section-title">The Pitch</h2>
+      <div class="info-panel glass-card" style="border-color: var(--neon-green-dim); text-align: center; padding: var(--space-3xl);">
+        <h3 style="font-size: 1.2rem; margin-bottom: var(--space-lg); color: var(--neon-green);">
+          "Our drone reduces visual processing energy consumption by 90%, <br>allowing it to fly longer and react instantly to obstacles in mid-air."
+        </h3>
+        <p style="max-width: 700px; margin: 0 auto;">
+          NeuroNex demonstrates how neuromorphic event-based vision can revolutionize autonomous drone navigation. 
+          By processing only what changes, our system achieves real-time collision avoidance with a fraction of the 
+          energy budget — extending flight time while dramatically improving safety.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>NeuroNex • Neuromorphic Event-Driven Drone Collision Avoidance System • Built with Canvas & Vanilla JS</p>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
